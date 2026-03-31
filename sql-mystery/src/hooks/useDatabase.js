@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import initSqlJs from "sql.js";
 import { SEED_SQL } from "../data/seed.js";
+import { isSafeQuery } from "../utils/security.js";
 
 export function useDatabase() {
   const [db, setDb] = useState(null);
@@ -45,22 +46,11 @@ export function useDatabase() {
         return { error: "Database not ready yet." };
       }
 
-      const dangerousKeywords = [
-        "DROP",
-        "DELETE",
-        "UPDATE",
-        "INSERT",
-        "ALTER",
-        "CREATE",
-        "REPLACE",
-        "TRUNCATE",
-      ];
-      if (
-        dangerousKeywords.some((keyword) =>
-          new RegExp("\\b" + keyword + "\\b", "i").test(sql),
-        )
-      ) {
-        return { error: "Destructive commands are not allowed." };
+      if (!isSafeQuery(sql)) {
+        return {
+          error:
+            "Invalid query. Only single SELECT statements are allowed. Destructive and administrative commands are forbidden.",
+        };
       }
 
       try {

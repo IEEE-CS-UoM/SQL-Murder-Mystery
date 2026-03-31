@@ -19,19 +19,21 @@ vi.mock("@google/genai", () => {
   };
 });
 
-import { generateSQL, isSafeQuery } from "./ai";
+import { generateSQL, extractSQL } from "./ai";
 
-describe("AI Service", () => {
+describe("AI Service (generateSQL & extractSQL)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("VITE_GEMINI_API_KEY", "test-key");
   });
 
-  it("filters unsafe queries correctly", () => {
-    expect(isSafeQuery("SELECT * FROM users")).toBe(true);
-    expect(isSafeQuery("DROP TABLE users")).toBe(false);
-    expect(isSafeQuery("DELETE FROM users")).toBe(false);
-    expect(isSafeQuery('UPDATE users SET name = "Test"')).toBe(false);
-    expect(isSafeQuery("INSERT INTO users VALUES (1)")).toBe(false);
+  it("extracts SQL from markdown correctly", () => {
+    expect(extractSQL("```sql\nSELECT * FROM test;\n```")).toBe(
+      "SELECT * FROM test;",
+    );
+    expect(extractSQL("  ```\nSELECT 1;\n```  ")).toBe("SELECT 1;");
+    expect(extractSQL("SELECT * FROM foo;")).toBe("SELECT * FROM foo;");
+    expect(extractSQL("  \nSELECT 2; \n ")).toBe("SELECT 2;");
   });
 
   it("generates safe SQL successfully without tool calling", async () => {
@@ -54,14 +56,14 @@ describe("AI Service", () => {
       functionCalls: [
         {
           name: "test_query",
-          args: { sql: "SELECT * FROM test" },
+          args: { sql: "SELECT * FROM person;" },
         },
       ],
     });
 
     // 2nd call: AI responds to tool result with final text
     mockSendMessage.mockResolvedValueOnce({
-      text: 'SELECT * FROM person WHERE name = "Test";',
+      text: "```sql\nSELECT * FROM person WHERE name = 'Test';\n```",
       functionCalls: null,
     });
 
@@ -73,26 +75,46 @@ describe("AI Service", () => {
     const sql = await generateSQL("Show people", runQueryMock);
 
     expect(mockSendMessage).toHaveBeenCalledTimes(2);
-    expect(runQueryMock).toHaveBeenCalledWith("SELECT * FROM test");
-    expect(sql).toBe('SELECT * FROM person WHERE name = "Test";');
+    expect(runQueryMock).toHaveBeenCalledWith("SELECT * FROM person;");
+    expect(sql).toBe("SELECT * FROM person WHERE name = 'Test';");
   });
 
-  it("handles errors from LLM", async () => {
+  it("handles errors from LLM gracefully", async () => {
     mockSendMessage.mockRejectedValueOnce(new Error("I don't understand"));
-
     await expect(generateSQL("gibberish", vi.fn())).rejects.toThrow(
       "I don't understand",
     );
   });
 
-  it("prevents returning unsafe queries even if LLM hallucinated", async () => {
+  it("prevents returning unsafe queries even if LLM hallucinated them", async () => {
     mockSendMessage.mockResolvedValueOnce({
       text: "DROP TABLE person;",
       functionCalls: null,
     });
 
     await expect(generateSQL("destroy database", vi.fn())).rejects.toThrow(
-      "Generated query contained forbidden destructive commands.",
+      "Generated query contained forbidden commands or invalid structure.",
+    );
+  });
+
+  it("fails if VITE_GEMINI_API_KEY is not provided", async () => {
+    vi.stubEnv("VITE_GEMINI_API_KEY", "");
+
+    // reset module cache to test initialization
+    const aiModule = await import("./ai.js?update=" + Date.now());
+    await expect(aiModule.generateSQL("test", vi.fn())).rejects.toThrow(
+      "Missing VITE_GEMINI_API_KEY",
+    );
+  });
+
+  it("fails if the response is completely empty", async () => {
+    mockSendMessage.mockResolvedValueOnce({
+      text: "   ",
+      functionCalls: null,
+    });
+
+    await expect(generateSQL("anything", vi.fn())).rejects.toThrow(
+      "Model did not return SQL.",
     );
   });
 });
