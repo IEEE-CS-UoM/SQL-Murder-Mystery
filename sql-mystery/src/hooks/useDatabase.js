@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
-import initSqlJs from 'sql.js';
-import { SEED_SQL } from '../data/seed.js';
+import { useCallback, useEffect, useState } from "react";
+import initSqlJs from "sql.js";
+import { SEED_SQL } from "../data/seed.js";
+import { isSafeQuery } from "../utils/security.js";
 
 export function useDatabase() {
   const [db, setDb] = useState(null);
@@ -11,7 +12,7 @@ export function useDatabase() {
     let active = true;
     let database = null;
 
-    initSqlJs({ locateFile: () => '/sql-wasm.wasm' })
+    initSqlJs({ locateFile: () => "/sql-wasm.wasm" })
       .then((SQL) => {
         if (!active) {
           return;
@@ -39,26 +40,36 @@ export function useDatabase() {
     };
   }, []);
 
-  const runQuery = useCallback((sql) => {
-    if (!db) {
-      return { error: 'Database not ready yet.' };
-    }
-
-    try {
-      const queryResults = db.exec(sql);
-
-      if (!queryResults.length) {
-        return { columns: [], rows: [], empty: true };
+  const runQuery = useCallback(
+    (sql) => {
+      if (!db) {
+        return { error: "Database not ready yet." };
       }
 
-      return {
-        columns: queryResults[0].columns,
-        rows: queryResults[0].values,
-      };
-    } catch (queryError) {
-      return { error: queryError.message };
-    }
-  }, [db]);
+      if (!isSafeQuery(sql)) {
+        return {
+          error:
+            "Invalid query. Only single SELECT statements are allowed. Destructive and administrative commands are forbidden.",
+        };
+      }
+
+      try {
+        const queryResults = db.exec(sql);
+
+        if (!queryResults.length) {
+          return { columns: [], rows: [], empty: true };
+        }
+
+        return {
+          columns: queryResults[0].columns,
+          rows: queryResults[0].values,
+        };
+      } catch (queryError) {
+        return { error: queryError.message };
+      }
+    },
+    [db],
+  );
 
   return { db, error, loading, runQuery };
 }
