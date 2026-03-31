@@ -1082,3 +1082,12 @@
     flex-direction: column;
   }
 }
+
+
+.nl-input-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+

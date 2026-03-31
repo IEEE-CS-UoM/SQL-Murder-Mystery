@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import './styles/variables.css';
-import './App.css';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "./styles/variables.css";
+import "./App.css";
 
-import Header from './components/Header.jsx';
-import DifficultyPicker from './components/DifficultyPicker.jsx';
-import Editor from './components/Editor.jsx';
-import ResultsTable from './components/ResultsTable.jsx';
-import SchemaPanel from './components/SchemaPanel.jsx';
-import HintPanel from './components/HintPanel.jsx';
-import HistoryPanel from './components/HistoryPanel.jsx';
-import Leaderboard from './components/Leaderboard.jsx';
-import SubmitSolution from './components/SubmitSolution.jsx';
-import VictoryScreen from './components/VictoryScreen.jsx';
-import { MYSTERIES } from './data/mysteries.js';
-import { useDatabase } from './hooks/useDatabase.js';
-import { useTimer } from './hooks/useTimer.js';
-import { useSoundEffects } from './hooks/useSound.js';
+import Header from "./components/Header.jsx";
+import DifficultyPicker from "./components/DifficultyPicker.jsx";
+import Editor from "./components/Editor.jsx";
+import ResultsTable from "./components/ResultsTable.jsx";
+import SchemaPanel from "./components/SchemaPanel.jsx";
+import HintPanel from "./components/HintPanel.jsx";
+import HistoryPanel from "./components/HistoryPanel.jsx";
+import Leaderboard from "./components/Leaderboard.jsx";
+import SubmitSolution from "./components/SubmitSolution.jsx";
+import VictoryScreen from "./components/VictoryScreen.jsx";
+import { MYSTERIES } from "./data/mysteries.js";
+import { useDatabase } from "./hooks/useDatabase.js";
+import { useTimer } from "./hooks/useTimer.js";
+import { useSoundEffects } from "./hooks/useSound.js";
 
-const DEFAULT_TAB = 'submit';
+const DEFAULT_TAB = "submit";
 
 function formatTimestamp() {
   return new Date().toISOString();
@@ -25,23 +25,23 @@ function formatTimestamp() {
 
 function getHistoryStatus(queryResult) {
   if (queryResult?.error) {
-    return 'error';
+    return "error";
   }
 
   if (queryResult?.empty || !queryResult?.rows?.length) {
-    return 'empty';
+    return "empty";
   }
 
-  return 'success';
+  return "success";
 }
 
 export default function App() {
   const { loading, error, runQuery } = useDatabase();
   const sounds = useSoundEffects();
 
-  const [screen, setScreen] = useState('picker');
+  const [screen, setScreen] = useState("picker");
   const [difficultyId, setDifficultyId] = useState(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
   const [revealedHints, setRevealedHints] = useState(0);
@@ -53,7 +53,7 @@ export default function App() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
-  const [statusLabel, setStatusLabel] = useState('Case Open');
+  const [statusLabel, setStatusLabel] = useState("Case Open");
 
   const editorRef = useRef(null);
   const timerStartedRef = useRef(false);
@@ -62,13 +62,15 @@ export default function App() {
 
   const handleExpire = useCallback(() => {
     setTimerExpired(true);
-    setStatusLabel((current) => (current === 'Case Solved' ? current : 'Case Open'));
+    setStatusLabel((current) =>
+      current === "Case Solved" ? current : "Case Open",
+    );
   }, []);
 
   const timer = useTimer(difficulty?.timeLimit ?? null, handleExpire);
 
   const startTimerIfNeeded = useCallback(() => {
-    if (!timerStartedRef.current && screen === 'game') {
+    if (!timerStartedRef.current && screen === "game") {
       timerStartedRef.current = true;
       timer.start();
     }
@@ -87,43 +89,52 @@ export default function App() {
     });
   }, []);
 
-  const executeQuery = useCallback((sql) => {
-    const trimmed = sql.trim();
-    if (!trimmed) {
-      return;
-    }
+  const executeQuery = useCallback(
+    (sql) => {
+      const trimmed = sql.trim();
+      if (!trimmed) {
+        return;
+      }
 
-    startTimerIfNeeded();
-    const nextResult = runQuery(trimmed);
-    setResult(nextResult);
-    recordQuery(trimmed, nextResult);
-  }, [recordQuery, runQuery, startTimerIfNeeded]);
+      startTimerIfNeeded();
+      const nextResult = runQuery(trimmed);
+      setResult(nextResult);
+      recordQuery(trimmed, nextResult);
+    },
+    [recordQuery, runQuery, startTimerIfNeeded],
+  );
 
-  const handleStart = useCallback((nextDifficultyId) => {
-    const nextDifficulty = MYSTERIES[nextDifficultyId];
-    setDifficultyId(nextDifficultyId);
-    setQuery(nextDifficulty.starterQuery);
-    setResult(null);
-    setHistory([]);
-    setRevealedHints(0);
-    setRightTab(DEFAULT_TAB);
-    setCurrentScore(null);
-    setShowVictory(false);
-    setLayer1Solved(false);
-    setTimerExpired(false);
-    setStatusLabel('Case Open');
-    setLeftDrawerOpen(false);
-    setRightDrawerOpen(false);
-    timerStartedRef.current = false;
-    timer.reset();
-    setScreen('game');
-  }, [timer]);
+  const handleStart = useCallback(
+    (nextDifficultyId) => {
+      const nextDifficulty = MYSTERIES[nextDifficultyId];
+      setDifficultyId(nextDifficultyId);
+      setQuery(nextDifficulty.starterQuery);
+      setResult(null);
+      setHistory([]);
+      setRevealedHints(0);
+      setRightTab(DEFAULT_TAB);
+      setCurrentScore(null);
+      setShowVictory(false);
+      setLayer1Solved(false);
+      setTimerExpired(false);
+      setStatusLabel("Case Open");
+      setLeftDrawerOpen(false);
+      setRightDrawerOpen(false);
+      timerStartedRef.current = false;
+      timer.reset();
+      setScreen("game");
+    },
+    [timer],
+  );
 
-  const handleTablePreview = useCallback((tableName) => {
-    const nextQuery = `SELECT * FROM ${tableName} LIMIT 5;`;
-    setQuery(nextQuery);
-    executeQuery(nextQuery);
-  }, [executeQuery]);
+  const handleTablePreview = useCallback(
+    (tableName) => {
+      const nextQuery = `SELECT * FROM ${tableName} LIMIT 5;`;
+      setQuery(nextQuery);
+      executeQuery(nextQuery);
+    },
+    [executeQuery],
+  );
 
   const handleCopyHintQuery = useCallback((hintQuery) => {
     setQuery(hintQuery);
@@ -138,7 +149,7 @@ export default function App() {
   }, [executeQuery, query]);
 
   const handleClearEditor = useCallback(() => {
-    setQuery('');
+    setQuery("");
     editorRef.current?.focus();
   }, []);
 
@@ -147,35 +158,37 @@ export default function App() {
       return;
     }
 
-    if (difficulty.id === 'hard' && revealedHints === 0) {
-      const confirmed = window.confirm('Use your one hard-mode hint?');
+    if (difficulty.id === "hard" && revealedHints === 0) {
+      const confirmed = window.confirm("Use your one hard-mode hint?");
       if (!confirmed) {
         return;
       }
     }
 
-    setRevealedHints((current) => Math.min(current + 1, difficulty.hints.length));
+    setRevealedHints((current) =>
+      Math.min(current + 1, difficulty.hints.length),
+    );
   }, [difficulty, revealedHints]);
 
   const handleLayer1Solved = useCallback(() => {
     setLayer1Solved(true);
-    setStatusLabel('Suspect Found');
-    setRightTab('submit');
+    setStatusLabel("Suspect Found");
+    setRightTab("submit");
   }, []);
 
   const handleLayer2Solved = useCallback(() => {
     timer.stop();
     sounds.playVictory();
-    setStatusLabel('Case Solved');
+    setStatusLabel("Case Solved");
     setShowVictory(true);
   }, [sounds, timer]);
 
   const handlePlayAgain = useCallback(() => {
     timer.reset();
     timerStartedRef.current = false;
-    setScreen('picker');
+    setScreen("picker");
     setDifficultyId(null);
-    setQuery('');
+    setQuery("");
     setResult(null);
     setHistory([]);
     setRevealedHints(0);
@@ -184,7 +197,7 @@ export default function App() {
     setShowVictory(false);
     setLayer1Solved(false);
     setTimerExpired(false);
-    setStatusLabel('Case Open');
+    setStatusLabel("Case Open");
     setHelpOpen(false);
     setLeftDrawerOpen(false);
     setRightDrawerOpen(false);
@@ -192,12 +205,14 @@ export default function App() {
 
   const handleViewLeaderboard = useCallback((entry) => {
     setCurrentScore(entry ?? null);
-    setRightTab('leaderboard');
+    setRightTab("leaderboard");
     setRightDrawerOpen(true);
     setShowVictory(false);
 
     requestAnimationFrame(() => {
-      document.getElementById('leaderboard-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      document
+        .getElementById("leaderboard-panel")
+        ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
   }, []);
 
@@ -207,14 +222,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (screen !== 'game') {
+    if (screen !== "game") {
       return undefined;
     }
 
     const handleShortcut = (event) => {
       const withModifier = event.ctrlKey || event.metaKey;
 
-      if (event.key === '?' && !withModifier) {
+      if (event.key === "?" && !withModifier) {
         event.preventDefault();
         setHelpOpen(true);
         return;
@@ -224,36 +239,36 @@ export default function App() {
         return;
       }
 
-      if (event.key.toLowerCase() === 'h') {
+      if (event.key.toLowerCase() === "h") {
         event.preventDefault();
         handleShowNextHint();
       }
 
-      if (event.key.toLowerCase() === 'l') {
+      if (event.key.toLowerCase() === "l") {
         event.preventDefault();
         handleClearEditor();
       }
 
-      if (event.key.toLowerCase() === 'k') {
+      if (event.key.toLowerCase() === "k") {
         event.preventDefault();
         editorRef.current?.focus();
       }
     };
 
-    window.addEventListener('keydown', handleShortcut);
-    return () => window.removeEventListener('keydown', handleShortcut);
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
   }, [handleClearEditor, handleShowNextHint, screen]);
 
   const status = useMemo(() => {
-    if (statusLabel === 'Case Solved') {
-      return 'Case Solved';
+    if (statusLabel === "Case Solved") {
+      return "Case Solved";
     }
 
-    if (statusLabel === 'Suspect Found') {
-      return 'Suspect Found';
+    if (statusLabel === "Suspect Found") {
+      return "Suspect Found";
     }
 
-    return timerExpired ? 'Time Expired' : 'Case Open';
+    return timerExpired ? "Time Expired" : "Case Open";
   }, [statusLabel, timerExpired]);
 
   if (loading) {
@@ -273,13 +288,15 @@ export default function App() {
         <div className="panel panel-error">
           <h1>Database failed to load</h1>
           <p>{error}</p>
-          <p className="panel-error-note">Run `npm run setup` to ensure `public/sql-wasm.wasm` is present.</p>
+          <p className="panel-error-note">
+            Run `npm run setup` to ensure `public/sql-wasm.wasm` is present.
+          </p>
         </div>
       </div>
     );
   }
 
-  if (screen === 'picker' || !difficulty) {
+  if (screen === "picker" || !difficulty) {
     return <DifficultyPicker onStart={handleStart} />;
   }
 
@@ -295,7 +312,9 @@ export default function App() {
       />
 
       <div className="app-grid">
-        <aside className={`drawer drawer-left ${leftDrawerOpen ? 'is-open' : ''}`}>
+        <aside
+          className={`drawer drawer-left ${leftDrawerOpen ? "is-open" : ""}`}
+        >
           {!difficulty.hideSchema && (
             <SchemaPanel onTableClick={handleTablePreview} />
           )}
@@ -311,14 +330,20 @@ export default function App() {
         <main className="workspace">
           {timerExpired && (
             <div className="banner banner-warning">
-              The clock hit zero. You can keep exploring the database, but this run is out of time.
+              The clock hit zero. You can keep exploring the database, but this
+              run is out of time.
             </div>
           )}
 
-          {status === 'Case Solved' && !showVictory && (
+          {status === "Case Solved" && !showVictory && (
             <div className="banner banner-success">
-              Case solved. The leaderboard is open on the right, and you can start a fresh investigation any time.
-              <button className="ghost-button banner-action" onClick={handlePlayAgain} type="button">
+              Case solved. The leaderboard is open on the right, and you can
+              start a fresh investigation any time.
+              <button
+                className="ghost-button banner-action"
+                onClick={handlePlayAgain}
+                type="button"
+              >
                 Play again
               </button>
             </div>
@@ -332,21 +357,24 @@ export default function App() {
             playRunQuery={sounds.playRunQuery}
             textareaRef={editorRef}
             value={query}
+            runQueryFunc={runQuery}
           />
 
           <ResultsTable result={result} />
         </main>
 
-        <aside className={`drawer drawer-right ${rightDrawerOpen ? 'is-open' : ''}`}>
+        <aside
+          className={`drawer drawer-right ${rightDrawerOpen ? "is-open" : ""}`}
+        >
           <div className="tabs">
             {[
-              ['history', 'History'],
-              ['leaderboard', 'Leaderboard'],
-              ['submit', 'Submit'],
+              ["history", "History"],
+              ["leaderboard", "Leaderboard"],
+              ["submit", "Submit"],
             ].map(([id, label]) => (
               <button
                 key={id}
-                className={`tab-button ${rightTab === id ? 'is-active' : ''}`}
+                className={`tab-button ${rightTab === id ? "is-active" : ""}`}
                 onClick={() => setRightTab(id)}
                 type="button"
               >
@@ -356,7 +384,7 @@ export default function App() {
           </div>
 
           <div className="tab-panel">
-            {rightTab === 'history' && (
+            {rightTab === "history" && (
               <HistoryPanel
                 history={history}
                 onClear={() => setHistory([])}
@@ -364,11 +392,11 @@ export default function App() {
               />
             )}
 
-            {rightTab === 'leaderboard' && (
+            {rightTab === "leaderboard" && (
               <Leaderboard currentScore={currentScore} />
             )}
 
-            {rightTab === 'submit' && (
+            {rightTab === "submit" && (
               <SubmitSolution
                 layer1Solved={layer1Solved}
                 onLayer1Solved={handleLayer1Solved}
@@ -390,7 +418,7 @@ export default function App() {
         }}
         type="button"
       >
-        {leftDrawerOpen ? 'Close' : 'Intel'}
+        {leftDrawerOpen ? "Close" : "Intel"}
       </button>
 
       <button
@@ -401,21 +429,49 @@ export default function App() {
         }}
         type="button"
       >
-        {rightDrawerOpen ? 'Close' : 'Panels'}
+        {rightDrawerOpen ? "Close" : "Panels"}
       </button>
 
       {helpOpen && (
-        <div className="modal-backdrop" onClick={() => setHelpOpen(false)} role="presentation">
-          <div className="modal-card" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true">
+        <div
+          className="modal-backdrop"
+          onClick={() => setHelpOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="modal-card"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
             <h2>Keyboard Shortcuts</h2>
             <div className="shortcut-list">
-              <div><code>Ctrl+Enter</code><span>Run query</span></div>
-              <div><code>Ctrl+H</code><span>Show next hint</span></div>
-              <div><code>Ctrl+L</code><span>Clear editor</span></div>
-              <div><code>Ctrl+K</code><span>Focus editor</span></div>
-              <div><code>?</code><span>Open this help panel</span></div>
+              <div>
+                <code>Ctrl+Enter</code>
+                <span>Run query</span>
+              </div>
+              <div>
+                <code>Ctrl+H</code>
+                <span>Show next hint</span>
+              </div>
+              <div>
+                <code>Ctrl+L</code>
+                <span>Clear editor</span>
+              </div>
+              <div>
+                <code>Ctrl+K</code>
+                <span>Focus editor</span>
+              </div>
+              <div>
+                <code>?</code>
+                <span>Open this help panel</span>
+              </div>
             </div>
-            <button className="secondary-button" onClick={() => setHelpOpen(false)} type="button">
+            <button
+              className="secondary-button"
+              onClick={() => setHelpOpen(false)}
+              type="button"
+            >
               Close
             </button>
           </div>
