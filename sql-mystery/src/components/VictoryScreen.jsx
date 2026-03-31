@@ -76,6 +76,11 @@ export default function VictoryScreen({ difficulty, elapsed, onPlayAgain, onView
           <div><span>Difficulty</span><strong>{difficulty.label}</strong></div>
         </div>
 
+        <figure className="victory-hero">
+          <img src="/celebrate.webp" alt="Case celebration board" />
+          <figcaption>Investigation complete. Log your name in the casebook.</figcaption>
+        </figure>
+
         <div className="victory-save">
           <label htmlFor="player-name">Save your score</label>
           <div className="victory-save-row">
