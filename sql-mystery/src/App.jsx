@@ -305,6 +305,7 @@ export default function App() {
       <Header
         difficulty={difficulty}
         muted={sounds.muted}
+        onQuit={handlePlayAgain}
         onShowHelp={() => setHelpOpen(true)}
         onToggleMute={sounds.toggleMute}
         status={status}

@@ -11,7 +11,7 @@ const DIFFICULTY_STYLES = {
   hard: ['var(--red)', 'var(--red-bg)'],
 };
 
-export default function Header({ difficulty, muted, onShowHelp, onToggleMute, status, timer }) {
+export default function Header({ difficulty, muted, onQuit, onShowHelp, onToggleMute, status, timer }) {
   const [statusColor, statusBackground] = STATUS_STYLES[status] ?? STATUS_STYLES['Case Open'];
   const [difficultyColor, difficultyBackground] = DIFFICULTY_STYLES[difficulty.id] ?? DIFFICULTY_STYLES.easy;
 
@@ -66,6 +66,9 @@ export default function Header({ difficulty, muted, onShowHelp, onToggleMute, st
         </button>
         <button className="icon-button" onClick={onShowHelp} title="Keyboard shortcuts" type="button">
           ?
+        </button>
+        <button className="icon-button" onClick={onQuit} title="Return to difficulty selection" type="button">
+          Quit
         </button>
       </div>
     </header>

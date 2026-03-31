@@ -1,3 +1,35 @@
+@font-face {
+  font-family: 'Cinzel';
+  src: url('/fonts/Cinzel-600.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  src: url('/fonts/Cinzel-700.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  src: url('/fonts/Cinzel-800.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Special Elite';
+  src: url('/fonts/SpecialElite-400.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 .app-shell {
   min-height: 100%;
   background:
@@ -750,37 +782,63 @@
 }
 
 .difficulty-screen {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 32px 20px;
-  background:
-    radial-gradient(circle at top, rgba(0, 98, 155, 0.16), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(232, 119, 34, 0.12), transparent 24%),
-    var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 20px;
+  overflow: hidden;
+  background: var(--bg);
 }
 
-.difficulty-screen > * {
-  width: min(1120px, 100%);
+.difficulty-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: center / cover no-repeat url('/homepage/background.webp');
+  transform: scale(1.03);
+}
+
+.difficulty-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 6% 6%, rgba(232, 119, 34, 0.24), transparent 28%),
+    radial-gradient(circle at 94% 94%, rgba(198, 144, 38, 0.2), transparent 32%),
+    linear-gradient(160deg, rgba(6, 8, 12, 0.86), rgba(7, 10, 16, 0.92));
+}
+
+.difficulty-shell {
+  width: min(1160px, 100%);
+  display: flex;
+  flex-direction: column;
 }
 
 .difficulty-hero {
-  margin: 0 auto 28px;
+  margin: 0 auto 42px;
+  padding-top: 24px;
   text-align: center;
 }
 
 .difficulty-hero p {
-  margin: 0 0 12px;
-  color: var(--ieee-blue);
+  margin: 0 0 18px;
+  color: var(--ieee-orange);
   font: 800 0.82rem/1 var(--font-sans);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .difficulty-hero h1 {
-  margin: 0 0 12px;
+  margin: 0 0 20px;
   color: var(--text);
-  font: 800 clamp(2.4rem, 6vw, 4.2rem)/0.95 var(--font-sans);
+  text-wrap: balance;
+  font: 800 clamp(2.4rem, 6vw, 4.2rem)/0.95 'Cinzel', var(--font-sans);
+  letter-spacing: 0.04em;
 }
 
 .difficulty-hero span {
@@ -793,61 +851,211 @@
 
 .difficulty-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(3, minmax(250px, 320px));
+  gap: 24px;
+  align-items: stretch;
+  justify-content: center;
 }
 
 .difficulty-card {
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-  background: linear-gradient(180deg, rgba(22, 27, 34, 0.96), rgba(33, 38, 45, 0.9));
-  text-align: left;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 22px;
+  padding: 22px 20px;
+  background: #0f1115;
+  box-shadow: 0 18px 38px rgba(3, 5, 8, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  text-align: center;
+  min-height: 560px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  will-change: transform;
+}
+
+.difficulty-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid transparent;
+  opacity: 0;
 }
 
 .difficulty-card:hover {
-  transform: scale(1.02);
-  border-color: rgba(65, 132, 228, 0.38);
+  transform: translateY(-4px);
+  border-color: rgba(232, 119, 34, 0.52);
+  box-shadow: 0 26px 46px rgba(0, 0, 0, 0.42);
 }
 
 .difficulty-card.is-selected {
-  border-color: rgba(0, 98, 155, 0.75);
-  box-shadow: 0 18px 45px rgba(0, 98, 155, 0.18);
+  border-color: rgba(232, 119, 34, 0.82);
+  box-shadow: 0 24px 50px rgba(232, 119, 34, 0.22);
+  background: #0d0f13;
 }
 
-.difficulty-card-header {
+.difficulty-card.is-selected::after {
+  border-color: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.difficulty-card-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 1;
+  background:
+    linear-gradient(180deg, rgba(4, 6, 9, 0.44) 0%, rgba(3, 5, 8, 0.72) 62%, rgba(2, 3, 6, 0.92) 100%);
+  transition: opacity 0.16s ease-out;
+}
+
+.difficulty-card.is-selected .difficulty-card-shade {
+  opacity: 0.16;
+}
+
+.difficulty-card-top {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.difficulty-card-header strong {
-  color: var(--text);
-  font: 800 1.15rem/1.2 var(--font-sans);
+.difficulty-card-top strong {
+  color: #f2efe7;
+  font: 700 clamp(1.75rem, 3vw, 2.25rem)/1.05 'Special Elite', var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.difficulty-card-header span {
-  color: var(--ieee-orange);
-  font: 700 0.8rem/1 var(--font-mono);
+.difficulty-card-top span {
+  color: #f2efe7;
+  font: 800 1.05rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.difficulty-card-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.88) contrast(1.02) brightness(0.9);
+}
+
+.difficulty-card-bottom {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: auto;
+  margin-bottom: 14px;
+  width: calc(100% - 16px);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .difficulty-card p {
-  margin: 0 0 20px;
-  color: var(--text-muted);
-  font: 500 0.95rem/1.65 var(--font-sans);
+  margin: 0;
+  color: #f3f1ec;
+  font: 600 1.08rem/1.52 var(--font-sans);
+  text-wrap: balance;
 }
 
 .difficulty-card small {
-  color: var(--text-dim);
-  font: 600 0.8rem/1.6 var(--font-sans);
+  margin-top: 0;
+  color: rgba(245, 241, 232, 0.88);
+  font: 600 0.94rem/1.48 var(--font-sans);
+  text-wrap: balance;
 }
 
-.difficulty-start {
-  margin: 24px auto 0;
-  display: block;
+.difficulty-actions {
+  margin-top: 28px;
+  display: grid;
+  place-items: center;
+}
+
+.difficulty-start-main {
+  width: fit-content;
+  min-width: 240px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.92);
+  color: #ffffff;
+  font: 700 0.8rem/1 var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.difficulty-start-main strong {
+  color: inherit;
+  font: 800 0.76rem/1 var(--font-sans);
+  letter-spacing: 0.1em;
+}
+
+.difficulty-start-main:hover {
+  background: #ffffff;
+  color: #111111;
+  transform: translateY(-1px);
+}
+
+.difficulty-start-main:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.difficulty-start-main:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 1100px) {
+  .difficulty-grid {
+    grid-template-columns: repeat(2, minmax(260px, 320px));
+  }
+}
+
+@media (max-width: 760px) {
+  .difficulty-screen {
+    align-items: flex-start;
+    padding: 36px 16px 24px;
+  }
+
+  .difficulty-hero {
+    margin-bottom: 28px;
+    padding-top: 12px;
+  }
+
+  .difficulty-grid {
+    grid-template-columns: minmax(260px, 360px);
+    justify-content: center;
+  }
+
+  .difficulty-card {
+    min-height: 500px;
+  }
+
+  .difficulty-start-main {
+    min-width: 220px;
+    padding: 11px 16px;
+  }
 }
 
 .banner {
