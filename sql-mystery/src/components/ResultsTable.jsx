@@ -1,8 +1,3 @@
-function truncateValue(value, max = 120) {
-  const stringValue = String(value);
-  return stringValue.length > max ? `${stringValue.slice(0, max)}...` : stringValue;
-}
-
 function EmptyMagnifier() {
   return <span className="magnifier" aria-hidden="true" />;
 }
@@ -55,7 +50,7 @@ export default function ResultsTable({ result }) {
               >
                 {row.map((cell, cellIndex) => {
                   const isNull = cell === null;
-                  const cellValue = isNull ? 'null' : truncateValue(cell);
+                  const cellValue = isNull ? 'null' : String(cell);
                   return (
                     <td
                       key={`${rowIndex}-${cellIndex}`}

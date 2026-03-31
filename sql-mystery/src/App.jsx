@@ -19,6 +19,9 @@ import { useSoundEffects } from "./hooks/useSound.js";
 
 const DEFAULT_TAB = "submit";
 
+const QUIT_PROMPT =
+  "Are you sure you want to let the murderer escape from SQL City before filing your first report?";
+
 function formatTimestamp() {
   return new Date().toISOString();
 }
@@ -51,6 +54,7 @@ export default function App() {
   const [layer1Solved, setLayer1Solved] = useState(false);
   const [timerExpired, setTimerExpired] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [quitConfirmOpen, setQuitConfirmOpen] = useState(false);
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [statusLabel, setStatusLabel] = useState("Case Open");
@@ -199,6 +203,7 @@ export default function App() {
     setTimerExpired(false);
     setStatusLabel("Case Open");
     setHelpOpen(false);
+    setQuitConfirmOpen(false);
     setLeftDrawerOpen(false);
     setRightDrawerOpen(false);
   }, [timer]);
@@ -271,6 +276,8 @@ export default function App() {
     return timerExpired ? "Time Expired" : "Case Open";
   }, [statusLabel, timerExpired]);
 
+  const quitPrompt = QUIT_PROMPT;
+
   if (loading) {
     return (
       <div className="app-loading">
@@ -305,7 +312,13 @@ export default function App() {
       <Header
         difficulty={difficulty}
         muted={sounds.muted}
-        onQuit={handlePlayAgain}
+        onQuit={() => {
+          if (status === "Case Solved" || showVictory) {
+            handlePlayAgain();
+            return;
+          }
+          setQuitConfirmOpen(true);
+        }}
         onShowHelp={() => setHelpOpen(true)}
         onToggleMute={sounds.toggleMute}
         status={status}
@@ -479,6 +492,41 @@ export default function App() {
         </div>
       )}
 
+      {quitConfirmOpen && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setQuitConfirmOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="modal-card modal-card--quit"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quit-case-title"
+          >
+            <h2 id="quit-case-title">Leave Investigation?</h2>
+            <p className="modal-message">{quitPrompt}</p>
+            <div className="modal-actions">
+              <button
+                className="secondary-button"
+                onClick={() => setQuitConfirmOpen(false)}
+                type="button"
+              >
+                Stay on Case
+              </button>
+              <button
+                className="primary-button"
+                onClick={handlePlayAgain}
+                type="button"
+              >
+                Let Them Escape
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showVictory && (
         <VictoryScreen
           difficulty={difficulty}
@@ -488,6 +536,10 @@ export default function App() {
           solution={difficulty.solution}
         />
       )}
+
+      <div className="app-footer-brand" aria-hidden="true">
+        IEEE CS
+      </div>
     </div>
   );
 }

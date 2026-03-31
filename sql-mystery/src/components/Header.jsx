@@ -13,7 +13,7 @@ const DIFFICULTY_STYLES = {
 
 export default function Header({ difficulty, muted, onQuit, onShowHelp, onToggleMute, status, timer }) {
   const [statusColor, statusBackground] = STATUS_STYLES[status] ?? STATUS_STYLES['Case Open'];
-  const [difficultyColor, difficultyBackground] = DIFFICULTY_STYLES[difficulty.id] ?? DIFFICULTY_STYLES.easy;
+  const [difficultyColor] = DIFFICULTY_STYLES[difficulty.id] ?? DIFFICULTY_STYLES.easy;
 
   let timerClassName = 'header-timer';
   if (timer.running) {
@@ -31,7 +31,6 @@ export default function Header({ difficulty, muted, onQuit, onShowHelp, onToggle
   return (
     <header className="header">
       <div className="header-brand">
-        <span className="header-brand-mark">IEEE CS</span>
         <div>
           <div className="header-title">SQL Murder Mystery</div>
           <div className="header-subtitle">Open Week investigation terminal</div>
@@ -42,27 +41,28 @@ export default function Header({ difficulty, muted, onQuit, onShowHelp, onToggle
 
       <div className="header-actions">
         <span
-          className="badge"
+          className="header-difficulty-text"
           style={{
             color: difficultyColor,
-            background: difficultyBackground,
-            borderColor: `${difficultyColor}55`,
           }}
         >
           {difficulty.label}
         </span>
-        <span
-          className="badge"
-          style={{
-            color: statusColor,
-            background: statusBackground,
-            borderColor: `${statusColor}55`,
-          }}
-        >
-          {status}
-        </span>
+        {status !== 'Case Open' && (
+          <span
+            className="badge"
+            style={{
+              color: statusColor,
+              background: statusBackground,
+              borderColor: `${statusColor}55`,
+            }}
+          >
+            {status}
+          </span>
+        )}
         <button className="icon-button" onClick={onToggleMute} title={muted ? 'Unmute sounds' : 'Mute sounds'} type="button">
-          {muted ? 'Mute' : 'Sound'}
+          <span aria-hidden="true">{muted ? '🔇' : '🔊'}</span>
+          <span>{muted ? 'Mute' : 'Sound'}</span>
         </button>
         <button className="icon-button" onClick={onShowHelp} title="Keyboard shortcuts" type="button">
           ?
