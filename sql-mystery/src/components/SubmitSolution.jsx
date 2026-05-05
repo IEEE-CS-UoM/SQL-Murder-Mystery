@@ -93,7 +93,7 @@ export default function SubmitSolution({
               handleSubmit();
             }
           }}
-          placeholder={layer1Solved ? 'Miranda Priestly' : 'Jeremy Bowers'}
+          placeholder={layer1Solved ? 'Jane Doe' : 'John Smith'}
           type="text"
           value={value}
         />
